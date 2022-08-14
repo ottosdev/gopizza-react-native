@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components/native";
-import { TextInput } from "react-native";
+import { TextInput, TouchableOpacity } from "react-native";
 export type TypeProps = "primary" | "secondary";
 
 type Props = {
@@ -37,7 +37,7 @@ export const ButtonClear = styled.TouchableOpacity`
   margin-right: 7px;
 `;
 
-export const Button = styled.TouchableOpacity`
+export const Button = styled(TouchableOpacity)`
   width: 52px;
   height: 52px;
   align-items: center;

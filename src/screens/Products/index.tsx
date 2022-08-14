@@ -4,24 +4,39 @@ import {
   Platform,
   ScrollView,
   Text,
+  View,
 } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native";
 import ButtonBack from "../../components/ButtonBack";
 import Photo from "../../components/Photo";
 import * as Styled from "./styles";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PriceInput from "../../components/PriceInput";
 import Input from "../../components/Input";
 import { Button } from "../../components/Button";
 import firestore from "@react-native-firebase/firestore";
 import storage from "@react-native-firebase/storage";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { ProductNavigationProps } from "../../@types/navigation";
+import { ProductProps } from "../../components/ProductCard";
+
 interface ProductsProps {
   onLayout: () => void;
 }
 
+type PizzaResponse = ProductProps & {
+  photo_path: string;
+  prices_sizes: {
+    p: string;
+    m: string;
+    g: string;
+  };
+};
+
 export default function Products({ onLayout }: ProductsProps) {
   const [image, setImage] = useState<string>("");
+  const [photoPath, setPhotoPath] = useState<string>("");
 
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -29,6 +44,28 @@ export default function Products({ onLayout }: ProductsProps) {
   const [priceSizeM, setPriceSizeM] = useState("");
   const [priceSizeG, setPriceSizeG] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { id } = route.params as ProductNavigationProps;
+
+  useEffect(() => {
+    if (id) {
+      firestore()
+        .collection("pizzas")
+        .doc(id)
+        .get()
+        .then((res) => {
+          const product = res.data() as PizzaResponse;
+          setName(product.name);
+          setPhotoPath(product.photo_path);
+          setImage(product.photo_url);
+          setDescription(product.description);
+          setPriceSizeP(product.prices_sizes.p);
+          setPriceSizeM(product.prices_sizes.m);
+          setPriceSizeG(product.prices_sizes.g);
+        });
+    }
+  }, []);
 
   async function handlePickerImage() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -43,6 +80,10 @@ export default function Products({ onLayout }: ProductsProps) {
         setImage(result.uri);
       }
     }
+  }
+
+  function handleGoBack() {
+    navigation.goBack();
   }
 
   async function handleAdd() {
@@ -84,12 +125,30 @@ export default function Products({ onLayout }: ProductsProps) {
         photo_url,
         photo_path: reference.fullPath,
       })
-      .then(() => Alert.alert("Cadastro", "Pizza cadastrada com sucesso"))
-      .catch(() =>
-        Alert.alert("Cadastro", "Não foi possivel cadastras a pizza")
-      );
+      .then(() => {
+        navigation.navigate("home");
+      })
+      .catch(() => {
+        {
+          setIsLoading(false);
+          Alert.alert("Cadastro", "Não foi possivel cadastras a pizza");
+        }
+      });
 
     setIsLoading(false);
+  }
+
+  function handleDelete() {
+    firestore()
+      .collection("pizzas")
+      .doc(id)
+      .delete()
+      .then(() => {
+        storage()
+          .ref(photoPath)
+          .delete()
+          .then(() => navigation.navigate("home"));
+      });
   }
 
   return (
@@ -98,11 +157,11 @@ export default function Products({ onLayout }: ProductsProps) {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <Styled.Header>
-        <ButtonBack />
+        <ButtonBack onPress={handleGoBack} />
         <Styled.Title>Cadastrar</Styled.Title>
 
-        <TouchableOpacity>
-          <Styled.DeleteLabel>Deletar</Styled.DeleteLabel>
+        <TouchableOpacity onPress={handleDelete}>
+          {id ? <Styled.DeleteLabel>Deletar</Styled.DeleteLabel> : <View />}
         </TouchableOpacity>
       </Styled.Header>
 
@@ -110,11 +169,13 @@ export default function Products({ onLayout }: ProductsProps) {
         <Styled.Upload>
           <Photo uri={image} />
 
-          <Styled.PickImageButton
-            title="Carregar"
-            type="secondary"
-            onPress={handlePickerImage}
-          />
+          {!id && (
+            <Styled.PickImageButton
+              title="Carregar"
+              type="secondary"
+              onPress={handlePickerImage}
+            />
+          )}
         </Styled.Upload>
 
         <Styled.Form>
@@ -159,7 +220,7 @@ export default function Products({ onLayout }: ProductsProps) {
 
           {isLoading && <ActivityIndicator size="large" color="red" />}
 
-          <Button title="Cadastrar" onPress={handleAdd} />
+          {!id && <Button title="Cadastrar" onPress={handleAdd} />}
         </Styled.Form>
       </ScrollView>
     </Styled.Container>

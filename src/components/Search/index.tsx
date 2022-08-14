@@ -1,4 +1,4 @@
-import { TextInputProps } from "react-native";
+import { TextInputProps, TouchableOpacityProps } from "react-native";
 import * as Styled from "./styles";
 import { Feather } from "@expo/vector-icons";
 import { useTheme } from "styled-components";
@@ -9,20 +9,20 @@ type Props = TextInputProps & {
 };
 
 export default function InputSearch({ onSearch, onClear, ...rest }: Props) {
-  const {COLORS} = useTheme()
+  const { COLORS } = useTheme();
 
   return (
     <Styled.Container>
       <Styled.InputArea>
-        <Styled.Input placeholder="pesquisar..." {...rest}/>
+        <Styled.Input placeholder="pesquisar..." {...rest} />
 
         <Styled.ButtonClear onPress={onClear}>
-          <Feather name="x" size={16}/>
+          <Feather name="x" size={16} />
         </Styled.ButtonClear>
       </Styled.InputArea>
-      <Styled.Button>
-        <Feather name="search" size={16} color={COLORS.TITLE}/>
+      <Styled.Button onPress={onSearch}>
+        <Feather name="search" size={16} color={COLORS.TITLE} />
       </Styled.Button>
     </Styled.Container>
-  )
+  );
 }
