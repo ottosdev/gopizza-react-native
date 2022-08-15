@@ -10,6 +10,8 @@ import { AuthProvider } from "./src/context/AuthContext";
 import Home from "./src/screens/Home";
 import Routes from "./src/routes";
 import { ActivityIndicator, View } from "react-native";
+import Order from "./src/screens/Order";
+import Orders from "./src/screens/Orders";
 SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
@@ -43,7 +45,8 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <AuthProvider>
           <View onLayout={onLayout} />
-          <Routes />
+          <Orders />
+          {/* <Routes /> */}
           <StatusBar style="auto" />
         </AuthProvider>
       </ThemeProvider>
