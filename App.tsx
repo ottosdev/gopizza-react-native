@@ -45,8 +45,7 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <AuthProvider>
           <View onLayout={onLayout} />
-          <Orders />
-          {/* <Routes /> */}
+          <Routes />
           <StatusBar style="auto" />
         </AuthProvider>
       </ThemeProvider>

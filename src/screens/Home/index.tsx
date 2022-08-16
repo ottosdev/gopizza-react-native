@@ -9,11 +9,13 @@ import firestore from "@react-native-firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useAuth } from "../../context/AuthContext";
 interface HomeProsp {
   onLayout: () => void;
 }
 
 export default function Home({ onLayout }: HomeProsp) {
+  const { logout, user } = useAuth();
   const { COLORS } = useTheme();
   const [pizzas, setPizzas] = useState<ProductProps[]>([]);
   const [search, setSearch] = useState("");
@@ -56,7 +58,8 @@ export default function Home({ onLayout }: HomeProsp) {
   );
 
   function handleOpen(id: string) {
-    navigation.navigate("product", { id });
+    const route = user?.isAdmin ? "product" : "order";
+    navigation.navigate(route, { id });
   }
 
   function handleAdd() {
@@ -68,10 +71,15 @@ export default function Home({ onLayout }: HomeProsp) {
       <Styled.HomeHeader>
         <Styled.Greeting>
           <Styled.GreetingEmoji source={happyEmoji} />
-          <Styled.GreetingText>Olá, Thaynara</Styled.GreetingText>
+          <Styled.GreetingText>Olá, {user.name}</Styled.GreetingText>
         </Styled.Greeting>
         <BorderlessButton>
-          <MaterialIcons name="logout" size={24} color={COLORS.TITLE} />
+          <MaterialIcons
+            name="logout"
+            size={24}
+            color={COLORS.TITLE}
+            onPress={logout}
+          />
         </BorderlessButton>
       </Styled.HomeHeader>
       <InputSearch
@@ -98,11 +106,13 @@ export default function Home({ onLayout }: HomeProsp) {
         )}
       />
 
-      <Styled.NewProductButton
-        title="Cadastrar pizza"
-        type="secondary"
-        onPress={handleAdd}
-      />
+      {user?.isAdmin && (
+        <Styled.NewProductButton
+          title="Cadastrar pizza"
+          type="secondary"
+          onPress={handleAdd}
+        />
+      )}
     </Styled.Container>
   );
 }

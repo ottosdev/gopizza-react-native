@@ -8,7 +8,7 @@ export const PIZZA_TYPES = [
     name: "Medio",
   },
   {
-    id: "G",
+    id: "g",
     name: "Grande",
   },
 ];

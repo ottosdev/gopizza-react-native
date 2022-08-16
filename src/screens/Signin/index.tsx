@@ -3,9 +3,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Text, TouchableOpaci
 import { Button } from "../../components/Button";
 import Input from "../../components/Input";
 
-type SigninProps = {
-  onLayout: () => void;
-};
+
 import {
   Brand,
   Container,
@@ -16,8 +14,8 @@ import {
 } from "./styles";
 import brandImg from "../../assets/brand.png";
 import { useAuth } from "../../context/AuthContext";
-export default function SignIn({ onLayout }: SigninProps) {
-  const { isLoggin, signIn, resetPassword } = useAuth();
+export default function SignIn() {
+  const { isLoggin, signIn, resetPassword, logout } = useAuth();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -31,7 +29,7 @@ export default function SignIn({ onLayout }: SigninProps) {
   }
 
   return (
-    <Container onLayout={onLayout}>
+    <Container >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
